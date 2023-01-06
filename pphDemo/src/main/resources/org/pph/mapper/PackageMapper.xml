@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.pph.mapper.PackageMapper">
+
+    <!-- SQL Statements -->
+    <!-- boolean insert() -->
+    <insert id="insert">
+        insert into package values(#{arg0}, #{arg1}, ${arg2}, #{arg3})
+    </insert>
+
+    <!-- boolean update() -->
+    <update id="update">
+        update package set company=#{arg2}, date=#{arg3}, number=#{arg1} where number=#{arg0}
+    </update>
+
+    <!-- boolean deleteByNumber() -->
+    <delete id="deleteByNumber">
+        delete from package where number=#{number}
+    </delete>
+
+    <!-- myPackage findByNumber(String number)
+            resultType: a java type for casting the inspected data
+            resultMap: a customized map for one-to-one or one-to-more
+    -->
+    <select id="findByNumber" resultType="myPackage">
+        <!-- #{key}: placeholder, ${key}: String concatenation -->
+        select * from package where number = #{number}
+    </select>
+
+    <!-- List<myPackage> checkAll() -->
+    <select id="checkAll" resultType="myPackage">
+        select * from package
+    </select>
+
+</mapper>
