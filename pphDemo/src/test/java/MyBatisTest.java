@@ -26,8 +26,9 @@ public class MyBatisTest {
 
         // Get mapper, test the method
         PackageMapper mapper = sqlSession.getMapper(PackageMapper.class);
-
-        boolean result = mapper.insert("77777777", "UPS", 777777, currentTime);
+        myPackage p = new myPackage("80000000", "DHL", 800000);
+        p.setCurrentTime(currentTime);
+        boolean result = mapper.insert(p);
 
         System.out.println("test-Insert Result: "+result);
         sqlSession.close();
@@ -41,7 +42,7 @@ public class MyBatisTest {
 
         // Get mapper, test the method
         PackageMapper mapper = sqlSession.getMapper(PackageMapper.class);
-        boolean result = mapper.update("88888888", "98888888", "DHL", currentTime);
+        boolean result = mapper.update("80000000", "80000001", "UPS", currentTime);
 
         System.out.println("test-Update Result: "+result);
         sqlSession.close();
@@ -88,14 +89,4 @@ public class MyBatisTest {
         sqlSession.close();
     }
 
-    // TODO:
-    //  1) test all functions, at least 100 insertions and deletions happened
-    //  2) Record the time spent on each function
-    //  3) Put results into results.txt
-    @Test
-    public void testAll(){
-        SqlSession sqlSession = SqlSessionUtil.getSqlSession();
-
-
-    }
 }
