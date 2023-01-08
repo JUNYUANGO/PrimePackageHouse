@@ -1,6 +1,7 @@
 package org.pph.pojo;
 
 import java.util.Objects;
+import java.util.Random;
 
 public class myPackage {
     // myPackage Number
@@ -11,6 +12,7 @@ public class myPackage {
 
     // myPackage Code
     private int code;
+    private String currentTime;
 
     // Constructors
     public myPackage() {}
@@ -45,6 +47,14 @@ public class myPackage {
         this.code = code;
     }
 
+    public String getCurrentTime() {
+        return currentTime;
+    }
+
+    public void setCurrentTime(String currentTime) {
+        this.currentTime = currentTime;
+    }
+
     @Override
     public String toString() {
         return "myPackage{" +
@@ -64,6 +74,20 @@ public class myPackage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(number);
+        String tempItem = getNumber();
+        int random = (int) ((Math.random() * (999999 - 100000)) + 100000);
+        //hash function
+        int code =
+                ((26*tempItem.charAt(0) << 3)
+                + (26*tempItem.charAt(1) << 2)
+                +(26*tempItem.charAt(tempItem.length()-1) << 1)
+                + random) % 999999;
+        while (code < 100000) {
+            code *= 13;
+        }
+        while (code > 999999) {
+            code %= 7;
+        }
+        return code;
     }
 }
