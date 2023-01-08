@@ -6,19 +6,23 @@
 <mapper namespace="org.pph.mapper.PackageMapper">
 
     <!-- SQL Statements -->
-    <!-- boolean insert() -->
+    <!-- boolean insert(myPackage p) -->
     <insert id="insert">
-        insert into package values(#{arg0}, #{arg1}, ${arg2}, #{arg3})
+        insert into locker values(#{number}, #{company}, #{code}, #{currentTime})
     </insert>
 
-    <!-- boolean update() -->
+    <!-- boolean update(
+                   @Param("oldNum") String oldNumber,
+                   @Param("newNum") String newNumber,
+                   @Param("newCompany") String newCompany,
+                   @Param("updateTime") String currentTime) -->
     <update id="update">
-        update package set company=#{arg2}, date=#{arg3}, number=#{arg1} where number=#{arg0}
+        update locker set company=#{newCompany}, date=#{updateTime}, number=#{newNum} where number=#{oldNum}
     </update>
 
-    <!-- boolean deleteByNumber() -->
+    <!-- boolean deleteByNumber(String number) -->
     <delete id="deleteByNumber">
-        delete from package where number=#{number}
+        delete from locker where number=#{number}
     </delete>
 
     <!-- myPackage findByNumber(String number)
@@ -27,12 +31,17 @@
     -->
     <select id="findByNumber" resultType="myPackage">
         <!-- #{key}: placeholder, ${key}: String concatenation -->
-        select * from package where number = #{number}
+        select * from locker where number = #{number}
+    </select>
+
+    <!-- boolean findByCode(int code) -->
+    <select id="findByCode" resultType="myPackage">
+        select * from locker where code = #{code}
     </select>
 
     <!-- List<myPackage> checkAll() -->
     <select id="checkAll" resultType="myPackage">
-        select * from package
+        select * from locker
     </select>
 
 </mapper>
