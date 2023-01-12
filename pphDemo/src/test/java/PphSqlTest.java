@@ -24,8 +24,7 @@ public class PphSqlTest {
     String currentTime = sdf.format(dt);
 
     // Create new packages
-    myPackage[] packages;
-    List<myPackage> packageList;
+    List<myPackage> locker;
 
     // Get SqlSession, Mapper
     SqlSession sqlSession = SqlSessionUtil.getSqlSession();
@@ -36,101 +35,134 @@ public class PphSqlTest {
         // Allocating packages
         System.out.println("$$$ Allocating "+number+" packages locally...");
         String[] companies = {"DHL", "UPS", "FedEx", "USPS"};
-        packages = new myPackage[number];
+        locker = new ArrayList<>();
 
         // Initializing packages information
         System.out.println("$$$ Initializing packages information...");
         for (int i = 0; i < number; i++) {
-            packages[i] = new myPackage();
-            packages[i].setNumber(Integer.toString(80000000+i));
-            packages[i].setCompany(companies[i % 4]);
-            packages[i].setCode(packages[i].hashCode());
-            packages[i].setCurrentTime(currentTime);
+            myPackage p = new myPackage();
+            p.setNumber(p.generateNumber());
+            p.setCompany(companies[i % 4]);
+            p.setCode(p.hashCode());
+            p.setCurrentTime(currentTime);
+            locker.add(p);
         }
+    }
+
+    @DisplayName("LoadUp() Successful")
+    void testLoadUp(){
+        locker = new ArrayList<>();
+        locker.addAll(mapper.checkAll());
+        locker.forEach(System.out::println);
+        System.out.println("$$$ CheckAll after LoadUp...");
     }
 
     @DisplayName("Insert() Successful")
     void testInsert(){
         System.out.println("$$$ Inserting packages into the database...");
-        boolean repeat = true;
+        boolean repeat;
         int code;
-
+        myPackage[] packages = new myPackage[locker.size()];
+        locker.toArray(packages);
         for (myPackage p : packages) {
+            repeat = true;
             code = p.getCode();
-
-            // TODO: Solve the code conflict.
-
-            mapper.insert(p);
+            // while loop to check if code exists
+            while (repeat) {
+                // Check if the code is used
+                if (mapper.findByCode(code) == null) {
+                    mapper.insert(p);
+                    repeat = false;
+                } else {
+                    // Regenerate a new code for the package
+                    int rand = (int) Math.abs(Math.random() + code);
+                    code = Math.abs((p.hashCode() << 3) + rand) % 999999;
+                    while (code < 100000) {
+                        code <<= 1;
+                    }
+                    p.setCode(code);
+                }
+            }
         }
-        System.out.println("$$$ CheckAll after insertions...");
-        packageList = mapper.checkAll();
-        packageList.forEach(System.out::println);
     }
 
     @DisplayName("Update() Successful")
     void testUpdate(){
         System.out.println("$$$ Updating new package in the database...");
-        int newNum = 80000000;
         String[] companies = {"USPS", "FedEx", "UPS", "DHL"};
-        for (int i = 0; i < packages.length; i++) {
+        for (int i = 0; i < locker.size(); i++) {
             mapper.update(
-                    packages[i].getNumber(),
-                    packages[i].getNumber(),
+                    locker.get(i).getNumber(),
+                    locker.get(i).getNumber(),
                     companies[i % 4],
                     currentTime);
         }
-        System.out.println("### checkAll after updates...");
-        packageList = mapper.checkAll();
-        packageList.forEach(System.out::println);
     }
 
     @DisplayName("Delete() Successful")
     void testDelete(){
-        System.out.println("$$$ Deleting odd packages in the database...");
-        for (int i = 1; i < packages.length; i+=2) {
-            mapper.deleteByNumber(Integer.toString(80000000+i));
+        System.out.println("$$$ Deleting all packages from the locker in the database...");
+        String num;
+        myPackage[] packages = new myPackage[locker.size()];
+        locker.toArray(packages);
+        for (myPackage p : packages) {
+            num = p.getNumber();
+            p = mapper.findByNumber(num);
+            if (p != null) {
+                mapper.deleteByNumber(num);
+                locker.remove(p);
+            } else {
+                System.out.println("### Trying to delete NULL... ###");
+            }
         }
-        System.out.println("$$$ CheckAll after deletions...");
-        packageList = mapper.checkAll();
-        packageList.forEach(System.out::println);
     }
 
     @DisplayName("FindByNumber() Successful")
     void testFindByNumber(){
-        System.out.println("$$$ Finding 'even' packages in the database...");
-        for (int i = 0; i < packages.length; i+=2) {
-            if (mapper.findByNumber(Integer.toString(80000000+i)) == null) {
+        System.out.println("$$$ Finding all packages inside the locker in the database...");
+        String num;
+        myPackage p;
+        for (int i = 0; i < locker.size(); i+=2) {
+            num = locker.get(i).getNumber();
+            p = mapper.findByNumber(num);
+            if (p != null) {
+                System.out.println("Package Found: "+p);
+            } else {
                 System.out.println("A null package found, returning...");
                 return;
             }
         }
     }
 
-    @DisplayName("Cleaning Up Successful")
-    void cleanUp(){
-        System.out.println("$$$ Cleaning up all packages in the database...");
-        String num;
-        for (int i = 0; i < packages.length; i++) {
-            num = packages[i].getNumber();
-            if (mapper.findByNumber(packages[i].getNumber()) != null) {
-                mapper.deleteByNumber(num);
-            }
-        }
+    @DisplayName("getCount() Successful")
+    void testGetCount(){
+        System.out.println(
+                "$$$ Getting the amount of packages inside the locker..." +
+                "There are { " + mapper.getCount() + " } packages inside the locker right now!");
     }
 
     @Test
     @DisplayName("full_test Successful")
     public void full_test(){
-        for (int i = 100; i < 1000; i+=100) {
-            System.out.println("--- Starting Test with "+i+" packages ---");
-            initAll(i);
-            testInsert();
-            testUpdate();
-            testDelete();
-            testFindByNumber();
-            cleanUp();
-            System.out.println("--- Ending Test with "+i+" packages ---");
-        }
+//        // Test for all functions, change num to start with
+        int num = 100;
+        System.out.println("$$$ Starting Test with "+num+" packages $$$");
+        initAll(num);
+        testInsert();
+        testUpdate();
+        testFindByNumber();
+        testGetCount();
+        testDelete();
+        System.out.println("$$$ Ending Test with "+num+" packages $$$");
+
+//         Test for Loading packages into the locker, deleting packages as well
+//         Same operation as truncating the database.
+//        System.out.println("$$$ testLoadUp $$$");
+//        testLoadUp();
+//        testGetCount();
+//        testDelete();
+
+        // Close SqlSession
         sqlSession.close();
     }
 
