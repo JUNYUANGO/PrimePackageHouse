@@ -4,7 +4,7 @@ import org.pph.pojo.myPackage;
 
 import java.util.Scanner;
 
-public class Views {
+public class Views {  //TODO: Rewrite the whole class for main function
     // Scanner for User Input
     private Scanner input = new Scanner(System.in);
 
@@ -200,9 +200,4 @@ public class Views {
     public void success(){
         System.out.println("Operation Success");
     }
-
-    // TODO:
-    //  think about the mechanism of inserting for customers who need to insert their returned packages.
-    //  If a customer want to return a package, what should we do to put packages back into database?
-    //  How should we notify carriers for returned packages? Should we create interfaces for customers and carriers such that this works?
 }
