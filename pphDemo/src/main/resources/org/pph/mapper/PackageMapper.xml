@@ -44,4 +44,9 @@
         select * from locker
     </select>
 
+    <!-- int getCount() -->
+    <select id="getCount" resultType="int">
+        select count(*) from locker
+    </select>
+
 </mapper>
