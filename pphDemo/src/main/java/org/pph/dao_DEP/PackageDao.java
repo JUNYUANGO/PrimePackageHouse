@@ -1,4 +1,4 @@
-package org.pph.dao_DERSERTED;
+package org.pph.dao_DEP;
 
 import org.pph.pojo.myPackage;
 import java.util.Random;
