@@ -51,4 +51,9 @@ public interface PackageMapper {
      * @return all packages
      */
     List<myPackage> checkAll();
+
+    /**
+     * Show the amount of packages inside the locker
+     */
+    int getCount();
 }
