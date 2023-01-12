@@ -1,7 +1,6 @@
 package org.pph.pojo;
 
 import java.util.Objects;
-import java.util.Random;
 
 public class myPackage {
     // myPackage Number
@@ -29,6 +28,11 @@ public class myPackage {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    // Return a random package number
+    public String generateNumber(){
+        return Integer.toString((int) Math.abs((Math.random() + 8) * 88888888) % 99999999);
     }
 
     public String getCompany() {
@@ -74,19 +78,18 @@ public class myPackage {
 
     @Override
     public int hashCode() {
-        String tempItem = getNumber();
-        int random = (int) ((Math.random() * (999999 - 100000)) + 100000);
+        String tempNum = getNumber();
+        String tempCompany = getCompany();
         //hash function
         int code =
-                ((26*tempItem.charAt(0) << 3)
-                + (26*tempItem.charAt(1) << 2)
-                +(26*tempItem.charAt(tempItem.length()-1) << 1)
-                + random) % 999999;
+                (((26*tempNum.charAt(0) << 3)
+                + (26*tempNum.charAt(1) << 2)
+                +(26*tempNum.charAt(tempNum.length()-1) << 1))
+                * ((13*tempCompany.charAt(0) << 1)
+                + (13*tempCompany.charAt(1) << 1)
+                + (13*tempCompany.charAt(tempCompany.length()-1) << 1))) % 999999;
         while (code < 100000) {
-            code *= 13;
-        }
-        while (code > 999999) {
-            code %= 7;
+            code <<= 3;
         }
         return code;
     }
